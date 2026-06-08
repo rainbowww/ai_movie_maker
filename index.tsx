@@ -211,7 +211,7 @@ function App() {
       finalPrompt += "\n\nIMPORTANT: Generate the professional portrait. Leave the chest area clean or with a blank name tag placeholder. Do not attempt to write specific text on the name tag.";
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
+        model: 'gemini-2.0-flash-preview-image-generation',
         contents: {
           parts: [
             {
@@ -226,6 +226,7 @@ function App() {
           ]
         },
         config: {
+          responseModalities: ['IMAGE', 'TEXT'],
           imageConfig: {
             aspectRatio: aspectRatio as any,
           }
