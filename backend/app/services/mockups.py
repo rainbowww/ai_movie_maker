@@ -14,10 +14,13 @@ subtitle band is padded on.
 """
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+from .subtitles import SubtitleError, find_korean_font
 
 W, H = 1280, 720
 
@@ -36,14 +39,32 @@ GREEN = (61, 220, 151)
 SKIN = (232, 184, 155)
 HAIR = (59, 44, 34)
 
-FONT_DIR = Path("/usr/share/fonts/truetype/nanum")
-FONT_REGULAR = FONT_DIR / "NanumBarunGothic.ttf"
-FONT_BOLD = FONT_DIR / "NanumBarunGothicBold.ttf"
+@lru_cache(maxsize=1)
+def _font_paths() -> tuple[Path | None, Path | None]:
+    """(regular, bold) Korean font paths, or (None, None) if none is installed.
+
+    Reuses the subtitle module's discovery instead of hardcoding a directory.
+    This pointed at /usr/share/fonts/truetype/nanum, so off Linux every Korean
+    label on these 27 screens fell through to PIL's default bitmap font, which
+    carries no Hangul at all and draws blanks.
+    """
+    try:
+        regular = find_korean_font()
+    except SubtitleError:
+        return None, None
+
+    # Use a matching bold face when the family ships one beside it.
+    for suffix in ("Bold", "-Bold", "bd"):
+        bold = regular.with_name(f"{regular.stem}{suffix}{regular.suffix}")
+        if bold.exists():
+            return regular, bold
+    return regular, None
 
 
 def _font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
-    path = FONT_BOLD if bold and FONT_BOLD.exists() else FONT_REGULAR
-    if not path.exists():  # fall back to whatever PIL can find
+    regular, bold_path = _font_paths()
+    path = bold_path if (bold and bold_path) else regular
+    if path is None:  # no Korean font anywhere — draw something rather than crash
         return ImageFont.load_default()
     return ImageFont.truetype(str(path), size)
 
