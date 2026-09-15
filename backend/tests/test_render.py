@@ -22,6 +22,7 @@ from app.services.subtitles import (
 from app.services.video_render import (
     OUTPUT_H,
     SceneAsset,
+    parse_timecode_span,
     probe_duration,
     render_project_video,
 )
@@ -179,6 +180,29 @@ def test_wrap_caption_breaks_long_korean_lines():
     wrapped = wrap_caption(long_text)
     assert "\n" in wrapped
     assert all(len(line) <= 45 for line in wrapped.split("\n"))
+
+
+def test_parse_timecode_span():
+    assert parse_timecode_span("0:56-1:23") == pytest.approx(27.0)
+    assert parse_timecode_span("9:10-9:49") == pytest.approx(39.0)
+    assert parse_timecode_span("") is None
+    assert parse_timecode_span("1:23-0:56") is None  # 끝이 시작보다 빠르면 무시
+
+
+def test_clip_is_held_to_the_source_beat_length(tmp_path: Path):
+    """원본 장면이 내레이션보다 길면, 그 길이만큼 화면을 유지해야 한다."""
+    img = _make_test_image(tmp_path / "scene.png")
+    wav = _make_test_wav(tmp_path / "scene.wav", seconds=2.0)
+
+    out_path = tmp_path / "final.mp4"
+    total = render_project_video(
+        scenes=[SceneAsset(img, wav, "짧은 대사입니다.", target_seconds=8.0)],
+        out_path=out_path,
+        work_dir=tmp_path / "_work",
+    )
+
+    assert total == pytest.approx(8.0, abs=0.05)
+    assert probe_duration(out_path) == pytest.approx(8.0, abs=0.3)
 
 
 def test_srt_timestamp_format():

@@ -36,6 +36,12 @@ class Scene(BaseModel):
     caption: str = ""
     image_prompt: str = ""
     cue: CueCircle = Field(default_factory=CueCircle)
+    # Timecode of the matching beat in the source video ("0:14-0:16"), kept so a
+    # remake can be checked against the original's pacing.
+    source_timecode: str = ""
+    # How long to hold a narration-free scene (music/logo beats). Ignored when
+    # the scene has audio, since audio length wins.
+    hold_seconds: Optional[float] = None
     image_path: Optional[str] = None  # relative to STORAGE_DIR
     audio_path: Optional[str] = None  # relative to STORAGE_DIR
     audio_seconds: Optional[float] = None

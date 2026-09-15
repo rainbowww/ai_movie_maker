@@ -1,13 +1,13 @@
 """Seed CONCEPT 2 — 1인칭 단독 진행 (solo first-person narration).
 
-Same tutorial, but told the way the source video tells it: one narrator,
-first person, walking through each step in order. Finer-grained than the
-two-host version (28 scenes vs 13) so the pacing tracks the original more
-closely.
+원본 영상의 35개 장면 구조를 그대로 따라갑니다. 원본에서 진행자가 말한
+대목마다 한국어 대사가 1:1로 대응하고, 말이 없는 대목(오프닝 음악, 로고
+스팅, 마지막 몽타주)은 대사 없이 원본과 같은 길이만큼 화면을 유지합니다.
+각 장면에는 원본 타임코드가 붙어 있어 완성본을 원본과 나란히 대조할 수
+있습니다.
 
-The narration is an original Korean adaptation of the workflow — it
-paraphrases the steps rather than transcribing the source video, and it
-does not reproduce the song lyrics heard in the source video's opening.
+대사는 원본 진행자의 말을 한국어로 옮긴 것이며, 발화 순서·개수·내용을
+바꾸지 않았습니다. 다만 오프닝에 흐르는 노래 가사는 옮기지 않았습니다.
 
     cd backend && python -m scripts.seed_solo_project
 """
@@ -24,92 +24,113 @@ from scripts._scene_library import cue, visual  # noqa: E402
 
 PROJECT_ID = "demo-solo"
 
-# (chapter, caption, visual key, cue key) — 화자는 전부 1인칭 단독 진행자
-RAW_SCENES = [
-    ("오프닝",
-     "방금 보신 이 뮤직비디오, 저는 단 한 푼도 쓰지 않고 만들었습니다.",
-     "hook_rooftop", None),
-    ("오프닝",
-     "카메라도, 밴드도, 악기도, 편집 경험도 필요하지 않았습니다.",
-     "host_m", None),
-    ("오프닝",
-     "무료 AI 도구 몇 개와 반나절이면 충분합니다. 지금부터 순서대로 보여드리겠습니다.",
-     "host_m_pointing", None),
-    ("Treblo로 작곡하기",
-     "가장 먼저 필요한 건 노래입니다. 저는 무료 AI 작곡 도구인 트레블로를 사용했습니다.",
-     "host_m", None),
-    ("Treblo로 작곡하기",
-     "로그인하면 이런 화면이 나옵니다. 여기 프롬프트 입력창에 원하는 곡을 설명해 주세요.",
-     "treblo_simple", "treblo_prompt_box"),
-    ("Treblo로 작곡하기",
-     "저는 첫눈에 반한 사랑에 대한 90년대 인디팝이라고 적고, 생성 버튼을 눌렀습니다.",
-     "treblo_simple", "treblo_generate"),
-    ("Treblo로 작곡하기",
-     "잠시 기다리면 두 곡이 만들어집니다. 둘 다 들어보고 마음에 드는 쪽을 고르면 됩니다.",
-     "treblo_results", None),
-    ("Treblo로 작곡하기",
-     "다만 심플 모드로는 곡의 방향을 세밀하게 잡기 어렵습니다. 그래서 어드밴스드 모드로 넘어갑니다.",
-     "treblo_advanced", "treblo_advanced_tab"),
-    ("Treblo로 작곡하기",
-     "여기서는 스타일 태그를 직접 고르거나, 원하는 장르를 직접 입력할 수 있습니다.",
-     "treblo_advanced", "treblo_style_tags"),
-    ("Treblo로 작곡하기",
-     "가사와 세부 설정은 클로드에게 미리 만들어 달라고 요청해 두었습니다.",
-     "claude_chat", None),
-    ("Treblo로 작곡하기",
-     "만들어진 스타일과 가사를 각각 붙여넣고, 스타일 강도와 곡 길이를 조절합니다.",
-     "treblo_advanced", "treblo_sliders"),
-    ("Treblo로 작곡하기",
-     "이번에는 훨씬 완성도 높은 곡 두 개가 나왔습니다. 노래는 이걸로 준비되었습니다.",
-     "treblo_results", None),
-    ("Claude로 스토리 만들기",
-     "이제 이 곡을 뮤직비디오로 만들 차례입니다.",
-     "host_m", None),
-    ("Claude로 스토리 만들기",
-     "저는 미리 준비해 둔 마스터 프롬프트를 사용합니다. 이 프롬프트는 설명란에 함께 올려두겠습니다.",
-     "host_m_pointing", None),
-    ("Claude로 스토리 만들기",
-     "마스터 프롬프트를 붙여넣으면 가사를 물어봅니다. 가사를 입력하고 전송하세요.",
-     "claude_chat", "claude_input"),
-    ("Claude로 스토리 만들기",
-     "그러면 가사를 분석해서 이야기 구성을 만들어 줍니다. 마음에 들면 확인이라고 입력합니다.",
-     "claude_chat", None),
-    ("Claude로 스토리 만들기",
-     "등장인물과 장소, 장면별 이미지 프롬프트까지 한 번에 정리해 줍니다. 내용을 한 번 훑어보세요.",
-     "claude_storyplan", None),
-    ("Google Flow로 장면 만들기",
-     "이 장면들을 실제 이미지로 만들 차례입니다. 저는 구글 플로우를 사용했습니다.",
-     "host_m", None),
-    ("Google Flow로 장면 만들기",
-     "프로젝트를 만들고 이미지 모드와 화면 비율을 설정한 다음, 캐릭터 프롬프트를 붙여넣고 생성을 누릅니다.",
-     "flow_image", "flow_generate"),
-    ("Google Flow로 장면 만들기",
-     "같은 방식으로 장소 이미지도 만듭니다. 프롬프트만 바꿔서 반복하면 됩니다.",
-     "flow_image", "flow_generate"),
-    ("Google Flow로 장면 만들기",
-     "필요한 이미지가 모두 준비됐습니다. 나중에 찾기 쉽도록 이름도 정리해 둡니다.",
-     "flow_gallery", None),
-    ("Google Flow로 장면 만들기",
-     "이제 설정을 비디오 모드로 바꾸고, 방금 만든 이미지를 레퍼런스로 지정합니다.",
-     "flow_video", "flow_reference"),
-    ("Google Flow로 장면 만들기",
-     "장면 프롬프트를 넣고 레퍼런스를 추가한 뒤 생성을 누르면, 첫 장면이 완성됩니다.",
-     "flow_video", "flow_video_generate"),
-    ("Google Flow로 장면 만들기",
-     "같은 방법으로 나머지 장면도 하나씩 만들고, 클립을 전부 저장합니다.",
-     "flow_video", None),
-    ("CapCut으로 완성하기",
-     "마지막으로 캡컷에서 모든 클립과 음원을 불러와 타임라인에 배치합니다.",
-     "capcut", "capcut_timeline"),
-    ("CapCut으로 완성하기",
-     "전환 효과를 더하고 내보내기를 누르면, 뮤직비디오가 완성됩니다.",
-     "capcut", "capcut_export"),
-    ("마무리",
-     "이렇게 완성된 결과물입니다. 여기까지 들어간 비용은 0원이었습니다.",
-     "final_montage", None),
-    ("마무리",
-     "도움이 되셨다면 좋아요와 구독 부탁드립니다. 다음 영상에서 뵙겠습니다.",
-     "outro_solo", None),
+# (원본 타임코드, 챕터, 한국어 대사, 화면 키, 빨간원 키, 대사 없을 때 유지 시간)
+RAW_SCENES: list[tuple[str, str, str, str, str | None, float | None]] = [
+    ("0:00-0:02", "오프닝 (완성본 미리보기)", "",
+     "hook_rooftop", None, 2.0),
+    ("0:02-0:04", "오프닝 (완성본 미리보기)", "",
+     "hook_fireflies", None, 2.0),
+    ("0:04-0:05", "오프닝 (완성본 미리보기)", "",
+     "hook_skyline_gaze", None, 1.0),
+    ("0:05-0:11", "오프닝 (완성본 미리보기)", "",
+     "hook_street_run", None, 6.0),
+    ("0:11-0:14", "오프닝 (완성본 미리보기)", "",
+     "hook_light_particles", None, 3.0),
+
+    ("0:14-0:16", "도입", "방금 보신 이 뮤직비디오 전부, 저는 0원으로 만들었습니다.",
+     "host_m", None, None),
+    ("0:16-0:20", "도입", "카메라도, 밴드도, 악기도, 편집 경험도 필요 없습니다.",
+     "host_m", None, None),
+    ("0:20-0:28", "도입",
+     "무료 AI 도구 몇 개와 반나절 정도면 됩니다. 이 영상에서 처음부터 끝까지 순서대로 "
+     "보여드리겠습니다. 바로 시작하죠.",
+     "host_m_laptop", None, None),
+    ("0:28-0:33", "도입", "",
+     "logo_sting", None, 5.0),
+
+    ("0:33-0:37", "Treblo로 작곡하기", "가장 먼저 필요한 건 노래입니다. 그리고 그건 트레블로를 사용합니다.",
+     "host_m_pointing", None, None),
+    ("0:37-0:56", "Treblo로 작곡하기",
+     "100% 무료 AI 음악·작곡 생성기입니다. 로그인하고 나면 화면이 이렇게 나옵니다.",
+     "treblo_home", None, None),
+    ("0:56-1:23", "Treblo로 작곡하기",
+     "여기가 프롬프트 입력창입니다. 예를 들어 저는 '첫눈에 반한 사랑에 대한 90년대 인디팝 곡'이라고 "
+     "입력합니다. 이제 생성 버튼만 누르면 됩니다.",
+     "treblo_simple", "treblo_generate", None),
+    ("1:23-1:43", "Treblo로 작곡하기", "두 곡이 모두 준비됐습니다. 한번 들어보겠습니다.",
+     "treblo_results", None, None),
+    ("1:43-2:00", "Treblo로 작곡하기",
+     "심플 모드에서는 곡의 방향을 지시할 수 없습니다. 그렇게 하려면 어드밴스드 모드를 써야 합니다.",
+     "treblo_advanced", "treblo_advanced_tab", None),
+    ("2:00-2:11", "Treblo로 작곡하기",
+     "먼저 스타일 태그가 있습니다. 여기서 하나 고르셔도 되고, 직접 입력하셔도 됩니다.",
+     "treblo_advanced", "treblo_style_tags", None),
+    ("2:11-2:23", "Treblo로 작곡하기",
+     "이 곡은 가사와 기술적인 설정을 이미 클로드로 만들어 두었습니다.",
+     "claude_chat", None, None),
+    ("2:23-2:54", "Treblo로 작곡하기",
+     "스타일을 복사해서 여기에 붙여넣습니다. 가사 항목으로 와서 가사를 입력합니다. 마지막으로 "
+     "스타일 강도와 길이 같은 것을 선택할 수 있습니다.",
+     "treblo_advanced", "treblo_sliders", None),
+    ("2:54-3:39", "Treblo로 작곡하기", "이번에도 두 곡이 생성됐습니다.",
+     "treblo_results", None, None),
+
+    ("3:39-3:52", "Claude로 스토리 만들기",
+     "노래를 얻었습니다. 이제 이 곡을 뮤직비디오로 만들 차례입니다.",
+     "host_m", None, None),
+    ("3:52-4:02", "Claude로 스토리 만들기",
+     "저는 클로드와 이 마스터 프롬프트를 사용하겠습니다. 이건 설명란에 올려두겠습니다.",
+     "master_prompt_card", None, None),
+    ("4:02-4:27", "Claude로 스토리 만들기",
+     "마스터 프롬프트를 챗 모델에 붙여넣습니다. 그러면 곡의 가사를 물어봅니다. 가사를 입력하고 "
+     "전송을 누릅니다.",
+     "claude_chat", "claude_input", None),
+    ("4:27-4:57", "Claude로 스토리 만들기",
+     "AI가 가사를 분석해서 이야기를 만들기 시작합니다. 마음에 드시면 '확인'이라고 입력하면 됩니다.",
+     "claude_chat", None, None),
+    ("4:57-5:29", "Claude로 스토리 만들기",
+     "AI 모델이 핵심 요소를 전부 만들어 줍니다. 등장인물과 장소, 이미지 프롬프트를 만들어 줍니다. "
+     "전부 한번 훑어보세요.",
+     "claude_storyplan", None, None),
+
+    ("5:29-5:39", "Google Flow로 장면 만들기",
+     "이제 이걸 실제로 구현할 차례입니다. 그러기 위해 저는 구글 플로우를 사용하겠습니다.",
+     "host_m_flow", None, None),
+    ("5:39-6:01", "Google Flow로 장면 만들기",
+     "프로젝트를 만듭니다. 이미지 모드와 화면 비율을 설정합니다. 첫 번째 캐릭터 프롬프트를 복사해서 "
+     "생성을 누릅니다.",
+     "flow_image", "flow_generate", None),
+    ("6:01-6:21", "Google Flow로 장면 만들기",
+     "두 번째 이미지를 만들겠습니다. 장소 프롬프트를 복사해서 생성을 누르기만 하면 됩니다.",
+     "flow_image", "flow_generate", None),
+    ("6:21-6:43", "Google Flow로 장면 만들기", "자, 여기 있습니다. 이미지가 전부 준비됐습니다.",
+     "flow_gallery", None, None),
+    ("6:43-7:01", "Google Flow로 장면 만들기",
+     "이미지 이름을 전부 클로드가 정해준 대로 바꾸겠습니다. 나중에 맞는 재료를 찾을 때 도움이 되기 "
+     "때문입니다.",
+     "flow_rename", None, None),
+    ("7:01-7:18", "Google Flow로 장면 만들기",
+     "설정으로 가서 비디오 모드로 바꿉니다. 재료를 레퍼런스로 선택합니다.",
+     "flow_video", "flow_reference", None),
+    ("7:18-8:02", "Google Flow로 장면 만들기",
+     "첫 번째 장면 프롬프트를 복사합니다. 재료를 추가합니다. 생성을 누릅니다. 완벽한 오프닝 샷입니다.",
+     "flow_video", "flow_video_generate", None),
+    ("8:02-8:24", "Google Flow로 장면 만들기", "이제 두 번째 장면을 만들겠습니다.",
+     "flow_video", None, None),
+    ("8:24-8:41", "Google Flow로 장면 만들기",
+     "같은 방법으로 나머지 장면을 전부 만듭니다. 영상 클립을 모두 저장합니다.",
+     "flow_gallery", None, None),
+
+    ("8:41-9:10", "CapCut으로 완성하기",
+     "클립과 노래를 전부 불러옵니다. 순서대로 배치합니다. 효과와 전환을 넣습니다. 영상을 내보냅니다.",
+     "capcut", "capcut_export", None),
+
+    ("9:10-9:49", "완성본", "",
+     "final_montage", None, 39.0),
+    ("9:49-10:04", "마무리",
+     "이 영상이 도움이 되셨다면 좋아요를 눌러주시고, 더 좋은 튜토리얼을 위해 구독해 주세요. "
+     "시청해 주셔서 감사합니다. 다음 영상에서 뵙겠습니다.",
+     "outro_solo", None, None),
 ]
 
 
@@ -122,12 +143,14 @@ def build_project() -> Project:
             caption=caption,
             image_prompt=visual(visual_key),
             cue=cue(cue_key) if cue_key else CueCircle(),
+            source_timecode=timecode,
+            hold_seconds=hold,
         )
-        for i, (chapter, caption, visual_key, cue_key) in enumerate(RAW_SCENES)
+        for i, (timecode, chapter, caption, visual_key, cue_key, hold) in enumerate(RAW_SCENES)
     ]
     return Project(
         id=PROJECT_ID,
-        title="컨셉 2 · 1인칭 단독 진행 (0원 뮤비 만들기)",
+        title="컨셉 2 · 1인칭 단독 진행 (원본 35장면 1:1)",
         voice_m="Puck",
         voice_f="Kore",  # 사용되지 않지만 스키마상 유지
         scenes=scenes,
@@ -137,7 +160,9 @@ def build_project() -> Project:
 def main() -> None:
     store = ProjectStore(get_settings().storage_dir)
     project = store.save(build_project())
-    print(f"[seed] 컨셉 2(1인칭 단독) 저장 완료: id={project.id}, 장면 수={len(project.scenes)}")
+    spoken = sum(1 for s in project.scenes if s.caption.strip())
+    print(f"[seed] 컨셉 2(1인칭 단독) 저장 완료: id={project.id}, 장면 {len(project.scenes)}개")
+    print(f"[seed] 대사 있는 장면 {spoken}개 / 무대사(음악·로고·몽타주) {len(project.scenes) - spoken}개")
 
 
 if __name__ == "__main__":

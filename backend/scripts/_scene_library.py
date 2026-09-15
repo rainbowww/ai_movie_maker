@@ -22,8 +22,48 @@ STYLE = (
 # Reusable screen / character illustrations, keyed by a short name.
 VISUALS: dict[str, str] = {
     "hook_rooftop": (
-        f"{STYLE} A young woman stands on a city rooftop at night, warm bokeh "
-        "city lights behind her, dreamy cinematic mood."
+        f"{STYLE} A young woman lies on a gravel rooftop at night, city lights "
+        "and a starry sky behind her, soft bokeh, dreamy cinematic mood."
+    ),
+    "hook_fireflies": (
+        f"{STYLE} Close-up of an open palm with glowing fireflies landing on it, "
+        "dim cool-toned light, gravel background."
+    ),
+    "hook_skyline_gaze": (
+        f"{STYLE} Profile view of a young woman looking out over a city skyline "
+        "at night, warm yellow bokeh lights, dark sky."
+    ),
+    "hook_street_run": (
+        f"{STYLE} A young woman runs down a European-style street lined with "
+        "brick buildings and warm string lights, laughing, cinematic warm light."
+    ),
+    "hook_light_particles": (
+        f"{STYLE} A young woman stands still in a street with her arms wide open, "
+        "swirling golden light particles around her, warm glow."
+    ),
+    "logo_sting": (
+        f"{STYLE} Fast-paced abstract composition of mechanical and digital shapes "
+        "assembling into a simple robot-head logo, dark background, vibrant accents."
+    ),
+    "host_m_laptop": (
+        f"{STYLE} Friendly young male presenter with hands resting on an open "
+        "laptop, blue background with vertical light bars, facing camera."
+    ),
+    "host_m_flow": (
+        f"{STYLE} Friendly young male presenter speaking to camera with a floating "
+        "graphic card beside him, blue neon gradient studio."
+    ),
+    "treblo_home": (
+        f"{STYLE} Mockup of a dark-themed AI music generator homepage: hero banner, "
+        "feature highlight cards and a pricing row, minimal browser window chrome."
+    ),
+    "master_prompt_card": (
+        f"{STYLE} A floating document card labelled with a prompt icon hovering "
+        "beside a presenter's hand, dark background with soft glow."
+    ),
+    "flow_rename": (
+        f"{STYLE} Mockup of an asset list where thumbnails are being renamed to "
+        "short labels, an inline text field active, dark theme browser chrome."
     ),
     "host_f": (
         f"{STYLE} Friendly young female presenter character, warm smile, casual "

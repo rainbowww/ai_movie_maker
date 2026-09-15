@@ -52,6 +52,36 @@ class SceneAsset:
     image_path: Path
     audio_path: Optional[Path] = None
     caption: str = ""
+    # Hold time for a narration-free beat (music sting, logo, final montage).
+    # Ignored when audio is present — the voice track sets the length.
+    hold_seconds: Optional[float] = None
+    # The matching beat's length in the source video. When set, the clip is
+    # held (with trailing silence) to this length even if the Korean line is
+    # shorter, so a remake lands on the original's timing beat for beat.
+    target_seconds: Optional[float] = None
+
+
+def parse_timecode_span(span: str) -> Optional[float]:
+    """'0:56-1:23' -> 27.0 seconds. Returns None if unparseable."""
+    if not span or "-" not in span:
+        return None
+
+    def to_seconds(value: str) -> Optional[float]:
+        parts = value.strip().split(":")
+        try:
+            numbers = [float(p) for p in parts]
+        except ValueError:
+            return None
+        total = 0.0
+        for n in numbers:
+            total = total * 60 + n
+        return total
+
+    start_raw, _, end_raw = span.partition("-")
+    start, end = to_seconds(start_raw), to_seconds(end_raw)
+    if start is None or end is None or end <= start:
+        return None
+    return end - start
 
 
 def _run(cmd: list[str]) -> None:
@@ -96,7 +126,17 @@ def render_scene_clip(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     has_audio = scene.audio_path is not None and scene.audio_path.exists()
-    duration = probe_duration(scene.audio_path) if has_audio else FALLBACK_SECONDS
+    if has_audio:
+        duration = probe_duration(scene.audio_path)
+    else:
+        duration = scene.hold_seconds or FALLBACK_SECONDS
+
+    # Hold the beat to the source video's length when it is longer than the
+    # narration — the extra time is exactly the screen-recording pause the
+    # original leaves after its voice line.
+    padded_to_source = bool(scene.target_seconds and scene.target_seconds > duration + 0.05)
+    if padded_to_source:
+        duration = scene.target_seconds  # type: ignore[assignment]
 
     captioned = burn_subtitles and bool(scene.caption.strip())
     filters = [_layout_filter(with_band=captioned)]
@@ -121,15 +161,19 @@ def render_scene_clip(
             "-i", str(scene.audio_path),
             "-c:v", "libx264", "-tune", "stillimage", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "160k",
-            "-shortest",
-            "-vf", vf,
-            str(out_path),
         ]
+        if padded_to_source:
+            # Pad the voice track with silence and cut both streams at the
+            # source beat's length.
+            cmd += ["-af", "apad", "-t", f"{duration:.3f}"]
+        else:
+            cmd += ["-shortest"]
+        cmd += ["-vf", vf, str(out_path)]
     else:
         cmd = [
             "ffmpeg", "-y",
-            "-loop", "1", "-framerate", str(FPS), "-t", str(FALLBACK_SECONDS), "-i", str(scene.image_path),
-            "-f", "lavfi", "-t", str(FALLBACK_SECONDS), "-i", "anullsrc=r=24000:cl=mono",
+            "-loop", "1", "-framerate", str(FPS), "-t", str(duration), "-i", str(scene.image_path),
+            "-f", "lavfi", "-t", str(duration), "-i", "anullsrc=r=24000:cl=mono",
             "-c:v", "libx264", "-tune", "stillimage", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "160k",
             "-vf", vf,

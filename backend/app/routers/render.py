@@ -4,13 +4,18 @@ from fastapi import APIRouter, HTTPException
 
 from ..config import get_settings
 from ..deps import get_store
-from ..services.video_render import RenderError, SceneAsset, render_project_video
+from ..services.video_render import (
+    RenderError,
+    SceneAsset,
+    parse_timecode_span,
+    render_project_video,
+)
 
 router = APIRouter(prefix="/api/projects", tags=["render"])
 
 
 @router.post("/{project_id}/render")
-def render_project(project_id: str, burn_subtitles: bool = True):
+def render_project(project_id: str, burn_subtitles: bool = True, match_source_timing: bool = True):
     settings = get_settings()
     store = get_store()
     project = store.get(project_id)
@@ -28,6 +33,10 @@ def render_project(project_id: str, burn_subtitles: bool = True):
             image_path=settings.storage_dir / scene.image_path,  # type: ignore[arg-type]
             audio_path=(settings.storage_dir / scene.audio_path) if scene.audio_path else None,
             caption=scene.caption,
+            hold_seconds=scene.hold_seconds,
+            target_seconds=(
+                parse_timecode_span(scene.source_timecode) if match_source_timing else None
+            ),
         )
         for scene in sorted(project.scenes, key=lambda s: s.order)
     ]
