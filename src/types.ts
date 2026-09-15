@@ -12,9 +12,19 @@ export interface Scene {
   order: number;
   chapter: string;
   speaker: Speaker;
+  /** What the viewer reads on screen. */
   caption: string;
+  /** What the engine says, when it must differ from the caption. Empty means
+   *  "derive it from the caption" (see backend/app/services/speech_text.py). */
+  speech_text: string;
   image_prompt: string;
+  /** Names the locally drawn mockup used by the zero-cost path. */
+  visual_key: string;
   cue: CueCircle;
+  /** Matching beat in the source video, e.g. "0:14-0:16". */
+  source_timecode: string;
+  /** How long to hold a scene with no narration. */
+  hold_seconds: number | null;
   image_path: string | null;
   audio_path: string | null;
   audio_seconds: number | null;

@@ -40,7 +40,7 @@ def _generate_for_scene(project_id: str, scene: Scene, force: bool) -> dict:
         audio_path = scenes_dir / f"{scene.id}.wav"
         voice = project.voice_m if scene.speaker == "m" else project.voice_f
         try:
-            generate_speech(settings, scene.caption, voice, audio_path)
+            generate_speech(settings, scene.spoken_text(normalize=False), voice, audio_path)
             scene.audio_path = str(audio_path.relative_to(settings.storage_dir))
         except GeminiTTSError as e:
             errors["audio"] = str(e)

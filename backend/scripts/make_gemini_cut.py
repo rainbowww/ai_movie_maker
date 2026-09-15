@@ -112,7 +112,7 @@ def main() -> None:
             wav = scenes_dir / f"{scene.id}.wav"
             voice = project.voice_m if scene.speaker == "m" else project.voice_f
             try:
-                generate_speech(settings, scene.caption, voice, wav)
+                generate_speech(settings, scene.spoken_text(normalize=False), voice, wav)
                 scene.audio_path = str(wav.relative_to(settings.storage_dir))
                 made_voice += 1
                 print(f"{label} 음성 완료 ({voice})")

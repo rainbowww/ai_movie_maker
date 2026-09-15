@@ -70,7 +70,7 @@ def build_voices(project, storage_root: Path, speed: int) -> int:
             scene.audio_path = None
             continue
         synthesize(
-            scene.caption, scenes_dir / f"{scene.id}.wav",
+            scene.spoken_text(), scenes_dir / f"{scene.id}.wav",
             voice=VOICE_BY_SPEAKER.get(scene.speaker, VOICE_BY_SPEAKER["m"]),
             speed=speed,
             pitch=PITCH_BY_SPEAKER.get(scene.speaker, PITCH_BY_SPEAKER["m"]),

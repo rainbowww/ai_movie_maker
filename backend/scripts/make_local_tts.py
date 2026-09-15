@@ -121,7 +121,7 @@ def main() -> None:
         voice = args.voice_m if scene.speaker == "m" else args.voice_f
         pitch = PITCH_BY_SPEAKER.get(scene.speaker, PITCH_BY_SPEAKER["m"])
         wav = synthesize(
-            scene.caption, scenes_dir / f"{scene.id}.wav",
+            scene.spoken_text(), scenes_dir / f"{scene.id}.wav",
             voice=voice, speed=args.speed, pitch=pitch,
             amplitude=args.amplitude, word_gap=args.word_gap, master=not args.raw,
         )

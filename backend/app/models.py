@@ -34,6 +34,11 @@ class Scene(BaseModel):
     chapter: str = ""
     speaker: Speaker = "m"
     caption: str = ""
+    # What the engine says, when it must differ from what the viewer reads.
+    # Left empty, `spoken_text()` derives it from the caption; set it by hand
+    # for the cases the normaliser cannot know (a name read a specific way,
+    # an English phrase that should stay English).
+    speech_text: str = ""
     image_prompt: str = ""
     # Name of the locally drawn mockup for this screen (app.services.mockups).
     # Lets the zero-cost path draw the exact layout the cue circle points at.
@@ -48,6 +53,23 @@ class Scene(BaseModel):
     image_path: Optional[str] = None  # relative to STORAGE_DIR
     audio_path: Optional[str] = None  # relative to STORAGE_DIR
     audio_seconds: Optional[float] = None
+
+    def spoken_text(self, normalize: bool = True) -> str:
+        """The string to hand a TTS engine — never the raw caption.
+
+        A non-empty `speech_text` wins outright. Otherwise the caption is
+        rewritten for espeak-ng, which switches to its English voice for
+        Latin words and chops a break into every digit (see
+        app.services.speech_text). Pass normalize=False for a neural engine:
+        Gemini reads "AI" and "100%" correctly on its own, and feeding it
+        에이아이 only makes it stiffer.
+        """
+        from .services.speech_text import to_speech_text
+
+        override = self.speech_text.strip()
+        if override:
+            return override
+        return to_speech_text(self.caption) if normalize else self.caption
 
 
 class Project(BaseModel):
