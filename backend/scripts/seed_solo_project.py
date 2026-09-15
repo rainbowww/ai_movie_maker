@@ -142,6 +142,7 @@ def build_project() -> Project:
             speaker="m",  # 단독 진행: 모든 장면이 같은 목소리
             caption=caption,
             image_prompt=visual(visual_key),
+            visual_key=visual_key,
             cue=cue(cue_key) if cue_key else CueCircle(),
             source_timecode=timecode,
             hold_seconds=hold,

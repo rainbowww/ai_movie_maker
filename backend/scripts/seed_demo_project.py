@@ -83,6 +83,7 @@ def build_project() -> Project:
             speaker=speaker,
             caption=caption,
             image_prompt=visual(visual_key),
+            visual_key=visual_key,
             cue=cue(cue_key) if cue_key else CueCircle(),
         )
         for i, (chapter, speaker, caption, visual_key, cue_key) in enumerate(RAW_SCENES)

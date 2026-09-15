@@ -35,6 +35,9 @@ class Scene(BaseModel):
     speaker: Speaker = "m"
     caption: str = ""
     image_prompt: str = ""
+    # Name of the locally drawn mockup for this screen (app.services.mockups).
+    # Lets the zero-cost path draw the exact layout the cue circle points at.
+    visual_key: str = ""
     cue: CueCircle = Field(default_factory=CueCircle)
     # Timecode of the matching beat in the source video ("0:14-0:16"), kept so a
     # remake can be checked against the original's pacing.

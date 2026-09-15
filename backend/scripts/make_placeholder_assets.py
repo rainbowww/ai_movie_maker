@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
 from app.config import get_settings  # noqa: E402
 from app.deps import get_store  # noqa: E402
+from app.services.mockups import render_mockup  # noqa: E402
 from app.services.overlay import apply_cue_circle  # noqa: E402
 from app.services.subtitles import find_korean_font  # noqa: E402
 
@@ -97,7 +98,10 @@ def main() -> None:
     for scene in sorted(project.scenes, key=lambda s: s.order):
         raw = scenes_dir / f"{scene.id}_placeholder_raw.png"
         final = scenes_dir / f"{scene.id}.png"
-        draw_placeholder(raw, scene.order, scene.chapter, scene.caption)
+        if scene.visual_key:
+            render_mockup(scene.visual_key, raw)
+        else:
+            draw_placeholder(raw, scene.order, scene.chapter, scene.caption)
 
         if scene.cue.enabled:
             apply_cue_circle(raw, final, scene.cue.x, scene.cue.y, scene.cue.r)

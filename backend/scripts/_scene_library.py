@@ -142,18 +142,30 @@ VISUALS: dict[str, str] = {
 }
 
 # Where the red "click here" circle goes on each screen (normalized 0-1).
+#
+# These are derived from the exact pixel coordinates the mockups in
+# app/services/mockups.py draw their controls at, on the 1280x720 content
+# canvas — so the circle lands on the control it points at, not near it.
+# If you move a control in mockups.py, move its cue here too.
 CUES: dict[str, CueCircle] = {
-    "treblo_prompt_box": CueCircle(enabled=True, x=0.46, y=0.49, r=0.20),
-    "treblo_generate": CueCircle(enabled=True, x=0.50, y=0.76, r=0.13),
-    "treblo_advanced_tab": CueCircle(enabled=True, x=0.22, y=0.24, r=0.10),
-    "treblo_style_tags": CueCircle(enabled=True, x=0.30, y=0.37, r=0.16),
-    "treblo_sliders": CueCircle(enabled=True, x=0.50, y=0.68, r=0.28),
-    "claude_input": CueCircle(enabled=True, x=0.50, y=0.85, r=0.18),
-    "flow_generate": CueCircle(enabled=True, x=0.50, y=0.85, r=0.13),
-    "flow_reference": CueCircle(enabled=True, x=0.22, y=0.30, r=0.16),
-    "flow_video_generate": CueCircle(enabled=True, x=0.50, y=0.86, r=0.13),
-    "capcut_timeline": CueCircle(enabled=True, x=0.50, y=0.71, r=0.26),
-    "capcut_export": CueCircle(enabled=True, x=0.83, y=0.18, r=0.12),
+    # treblo_simple: prompt box 110-1170 x 160-400; 생성 button at (640, 548)
+    "treblo_prompt_box": CueCircle(enabled=True, x=0.500, y=0.389, r=0.26),
+    "treblo_generate": CueCircle(enabled=True, x=0.500, y=0.761, r=0.13),
+    # treblo_advanced: "Advanced" tab at (210,100); chips row y 250-288;
+    # sliders at y 400 and 500 spanning x 110-1170
+    "treblo_advanced_tab": CueCircle(enabled=True, x=0.199, y=0.153, r=0.075),
+    "treblo_style_tags": CueCircle(enabled=True, x=0.260, y=0.374, r=0.145),
+    "treblo_sliders": CueCircle(enabled=True, x=0.500, y=0.632, r=0.30),
+    # claude_chat: input bar 110-1070 x 580-640
+    "claude_input": CueCircle(enabled=True, x=0.461, y=0.847, r=0.20),
+    # flow_image: 생성 button at (640, 600)
+    "flow_generate": CueCircle(enabled=True, x=0.500, y=0.833, r=0.13),
+    # flow_video: first ingredient thumb 110-240 x 145-275; 생성 at (640, 610)
+    "flow_reference": CueCircle(enabled=True, x=0.137, y=0.292, r=0.095),
+    "flow_video_generate": CueCircle(enabled=True, x=0.500, y=0.847, r=0.13),
+    # capcut: clip lane y 470-546 across x 100-1170; 내보내기 at (1063, 88)
+    "capcut_timeline": CueCircle(enabled=True, x=0.500, y=0.706, r=0.30),
+    "capcut_export": CueCircle(enabled=True, x=0.830, y=0.122, r=0.105),
 }
 
 
