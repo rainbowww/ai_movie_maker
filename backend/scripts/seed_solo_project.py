@@ -173,7 +173,7 @@ def build_project() -> Project:
     ]
     return Project(
         id=PROJECT_ID,
-        title="컨셉 2 · 1인칭 단독 진행 (원본 35장면 1:1)",
+        title="컨셉 2 · 1인칭 단독 진행 (원본 38장면 1:1)",
         voice_m="Puck",
         voice_f="Kore",  # 사용되지 않지만 스키마상 유지
         scenes=scenes,

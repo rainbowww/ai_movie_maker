@@ -98,7 +98,7 @@ API 키도 크레딧도 서버도 없이, 완성된 영상을 통째로 만들�
 
 ```bash
 sudo apt install espeak-ng ffmpeg fonts-nanum     # 한 번만
-python -m scripts.make_free_cut demo-solo         # 35장면 · 약 2분 소요
+python -m scripts.make_free_cut demo-solo         # 38장면 · 약 2분 소요
 python -m scripts.make_free_cut demo-2host        # 13장면 · 약 40초
 ```
 
@@ -150,13 +150,13 @@ python -m scripts.make_gemini_cut demo-solo --voice-only # 음성만 교체
 실행하면 남은 장면만 이어서 하고, 이미 만든 장면에 다시 돈을 쓰지 않습니다.
 
 이미 0원으로 만들어 둔 화면이 마음에 든다면 `--voice-only`로 음성만 바꾸는 편이
-가장 쌉니다 (35장면 기준 음성만이면 몇 센트 수준).
+가장 쌉니다 (38장면 기준 음성만이면 몇 센트 수준).
 
 ### 4. 사용
 
 1. 브라우저에서 `http://localhost:5173` 접속 — 예시 프로젝트가 보입니다.
 2. 각 씬 카드에서 대사·이미지 프롬프트·빨간 원 위치(x, y, r)를 수정합니다.
-3. "전체 생성" — 씬마다 Gemini로 이미지+음성을 생성합니다. 35장면이면 호출이 70번이라
+3. "전체 생성" — 씬마다 Gemini로 이미지+음성을 생성합니다. 38장면이면 호출이 76번이라
    한 번의 요청으로는 타임아웃이 나므로, 백엔드가 몇 장면씩 끊어 처리하고 프런트엔드가
    `remaining`이 0이 될 때까지 이어서 호출합니다. 장면마다 저장되니 중간에 끊겨도
    진행분은 남고, 다시 눌러도 이미 끝난 장면은 건너뜁니다. 한 묶음이 통째로 실패하면
