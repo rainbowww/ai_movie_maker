@@ -109,6 +109,25 @@ export default function App() {
         <div>
           <span className="kicker">AI 무비 메이커 · Python + Gemini</span>
           <h1>{current.title}</h1>
+          {projects.length > 1 && (
+            <select
+              className="project-switch"
+              value={current.id}
+              onChange={(e) => {
+                const next = projects.find((p) => p.id === e.target.value);
+                if (next) {
+                  setCurrent(next);
+                  setRenderResult(null);
+                }
+              }}
+            >
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
         <div className={`badge ${geminiReady ? 'ok' : 'warn'}`}>
           {geminiReady === null ? '확인 중…' : geminiReady ? 'Gemini API 연결됨' : 'GEMINI_API_KEY 미설정'}
@@ -141,10 +160,19 @@ export default function App() {
 
       {renderResult && (
         <div className="render-result">
-          완성: {renderResult.duration_seconds.toFixed(1)}초 —{' '}
+          완성: {renderResult.duration_seconds.toFixed(1)}초
+          {renderResult.subtitles_burned && ' · 한글 자막 번인됨'} —{' '}
           <a href={mediaUrl(current.video_path)} download>
             영상 다운로드
           </a>
+          {renderResult.srt_path && (
+            <>
+              {' · '}
+              <a href={mediaUrl(renderResult.srt_path)} download>
+                자막(.srt) 다운로드
+              </a>
+            </>
+          )}
         </div>
       )}
       {current.video_path && !renderResult && (

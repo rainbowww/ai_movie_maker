@@ -6,10 +6,31 @@
 
 이미지 생성 + TTS(음성합성)를 결합해 **한국어 사용설명서 스타일 영상**을 만드는 도구입니다.
 씬(장면) 단위로 대사·이미지 프롬프트·클릭 강조(빨간 원)를 편집하고, 각 씬을 Gemini로
-생성한 뒤 ffmpeg으로 하나의 mp4로 합칩니다.
+생성한 뒤 ffmpeg으로 **한글 자막이 구워진 하나의 mp4**로 합칩니다.
 
 이전에 이 저장소에 있던 "Gemini ID 증명사진 생성기" 데모는 이 도구로 교체되었습니다
 (git 히스토리에는 남아 있습니다).
+
+## 두 가지 컨셉이 기본 제공됩니다
+
+| 프로젝트 | 컨셉 | 장면 | 화자 |
+|---|---|---|---|
+| `demo-2host` | 두 사람 진행 (남/여 대화체) | 13 | 남·여 두 목소리 |
+| `demo-solo` | 1인칭 단독 진행 (원본 영상과 같은 화법) | 28 | 한 목소리 |
+
+같은 워크플로(Treblo → Claude → Google Flow → CapCut)를 서로 다른 화법으로 담았습니다.
+UI 상단 드롭다운으로 두 프로젝트를 오갈 수 있습니다.
+
+## 자막과 싱크
+
+- 각 장면 클립의 길이 = 그 장면 내레이션 오디오의 길이입니다. 따라서 음성과 자막이
+  **구조적으로 어긋날 수 없습니다.**
+- 긴 대사는 글자 수에 비례해 여러 자막으로 자동 분할되고, 분할 지점은 문장 끝 →
+  쉼표 → 띄어쓰기 순으로 선택돼 말이 끊기는 자리에 자연스럽게 걸립니다.
+- 영상은 그림 영역(1280×720) 아래에 **자막 전용 띠(96px)** 를 덧붙인 1280×816으로
+  출력됩니다. 자막이 그림이나 빨간 원을 가리는 일이 없습니다.
+- 번인 자막은 해상도를 명시한 ASS로 그려지고(픽셀 단위 정확도), 배포용 `.srt`가
+  mp4 옆에 함께 저장됩니다(유튜브 업로드·번역에 재사용 가능).
 
 ## 아키텍처
 
@@ -49,7 +70,8 @@ pip install -r requirements.txt
 cp .env.example .env
 # .env를 열어 GEMINI_API_KEY 입력 (https://aistudio.google.com/apikey 에서 발급)
 
-python -m scripts.seed_demo_project   # 예시 프로젝트(13개 장면) 생성
+python -m scripts.seed_demo_project   # 컨셉 1: 두 사람 진행 (13장면)
+python -m scripts.seed_solo_project   # 컨셉 2: 1인칭 단독 진행 (28장면)
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -70,7 +92,20 @@ npm install     # 저장소 최상위에 node_modules 생성
 npm run dev     # http://localhost:5173, /api·/media는 :8000으로 프록시
 ```
 
-### 3. 사용
+### 3. 돈 쓰기 전에 전체 흐름 먼저 확인하기 (0원)
+
+Gemini를 호출하기 전에, 로컬에서 그린 플레이스홀더 이미지와 무음 오디오로 파이프라인
+전체(빨간 원 → 자막 번인 → 클립 합성 → 최종 mp4)를 **비용 0원으로** 돌려볼 수 있습니다.
+
+```bash
+python -m scripts.make_placeholder_assets demo-2host --with-audio
+python -m scripts.make_placeholder_assets demo-solo --with-audio
+# 그 다음 UI에서 "영상 렌더링" (또는 POST /api/projects/demo-2host/render)
+```
+
+구조와 자막 위치가 마음에 들면, 그때 실제 생성으로 넘어가 품질만 끌어올리면 됩니다.
+
+### 4. 사용
 
 1. 브라우저에서 `http://localhost:5173` 접속 — 예시 프로젝트가 보입니다.
 2. 각 씬 카드에서 대사·이미지 프롬프트·빨간 원 위치(x, y, r)를 수정합니다.

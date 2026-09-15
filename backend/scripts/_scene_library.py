@@ -1,0 +1,125 @@
+"""Shared visual vocabulary for the seed projects.
+
+Both concepts (two-host dialogue, solo first-person narration) walk through
+the same tool screens, so the image prompts and click-cue positions live
+here once instead of being duplicated per script.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.models import CueCircle  # noqa: E402
+
+STYLE = (
+    "Modern flat vector illustration, clean lines, soft gradient background, "
+    "cohesive indigo-purple-teal palette, tutorial explainer video aesthetic, "
+    "no photorealism, no readable long paragraphs of text, 16:9."
+)
+
+# Reusable screen / character illustrations, keyed by a short name.
+VISUALS: dict[str, str] = {
+    "hook_rooftop": (
+        f"{STYLE} A young woman stands on a city rooftop at night, warm bokeh "
+        "city lights behind her, dreamy cinematic mood."
+    ),
+    "host_f": (
+        f"{STYLE} Friendly young female presenter character, warm smile, casual "
+        "smart outfit, standing in a soft pink-teal gradient studio, facing camera."
+    ),
+    "host_f_gesturing": (
+        f"{STYLE} The same friendly female presenter, gesturing enthusiastically "
+        "while presenting, pink-teal gradient studio background."
+    ),
+    "host_m": (
+        f"{STYLE} Friendly young male presenter character, short hair, glasses, "
+        "light beard, grey t-shirt, standing in a blue neon gradient studio, facing camera."
+    ),
+    "host_m_pointing": (
+        f"{STYLE} The same male presenter, pointing toward an off-screen laptop, "
+        "blue gradient studio background."
+    ),
+    "treblo_simple": (
+        f"{STYLE} Mockup of a dark-themed AI music generator web app: a large "
+        "text prompt input box and a rounded 'Generate' button below it, minimal "
+        "browser window chrome."
+    ),
+    "treblo_advanced": (
+        f"{STYLE} Mockup of a dark-themed music app 'advanced mode': a row of "
+        "genre style tag chips and two labeled horizontal sliders (Style Strength, "
+        "Duration), minimal browser window chrome."
+    ),
+    "treblo_results": (
+        f"{STYLE} Mockup of a music app results screen: two song result cards, "
+        "each with a play button icon and waveform bars, minimal browser window chrome."
+    ),
+    "claude_chat": (
+        f"{STYLE} Mockup of a minimalist AI chat assistant interface: chat bubble "
+        "conversation on the left, a text input bar with a send icon at the bottom, "
+        "warm orange accent color, minimal browser window chrome."
+    ),
+    "claude_storyplan": (
+        f"{STYLE} Mockup of an AI chat assistant output panel: a small character "
+        "portrait thumbnail, a few location thumbnail icons, and a short list of "
+        "prompt cards, warm orange accent color."
+    ),
+    "flow_image": (
+        f"{STYLE} Mockup of an AI image-generation studio interface: left settings "
+        "sidebar with toggle switches, large central canvas with a generated portrait "
+        "thumbnail, a prominent 'Generate' button, minimal browser window chrome."
+    ),
+    "flow_gallery": (
+        f"{STYLE} Mockup of an image gallery grid with eight generated thumbnails "
+        "of a character and city locations, dark theme, minimal browser window chrome."
+    ),
+    "flow_video": (
+        f"{STYLE} Mockup of an AI video-generation studio interface: a row of small "
+        "reference thumbnail icons on the side, a large central video preview frame "
+        "with a play icon, a prominent 'Generate' button, minimal browser window chrome."
+    ),
+    "capcut": (
+        f"{STYLE} Mockup of a desktop video editor interface: a horizontal timeline "
+        "at the bottom with colored clip blocks and a waveform track, a highlighted "
+        "'Export' button in the top-right corner, minimal window chrome."
+    ),
+    "final_montage": (
+        f"{STYLE} A four-panel montage of finished music video frames: a rooftop at "
+        "night, a rain-slicked city street, warm string lights, and a silhouette "
+        "against city lights."
+    ),
+    "outro_two_hosts": (
+        f"{STYLE} Two friendly presenter characters (one male, one female, matching "
+        "earlier descriptions) standing together, waving and smiling at the camera "
+        "with a thumbs-up gesture, warm gradient background with small heart and "
+        "bell icon shapes."
+    ),
+    "outro_solo": (
+        f"{STYLE} The friendly male presenter waving goodbye at the camera with a "
+        "thumbs-up, warm gradient background with small heart and bell icon shapes."
+    ),
+}
+
+# Where the red "click here" circle goes on each screen (normalized 0-1).
+CUES: dict[str, CueCircle] = {
+    "treblo_prompt_box": CueCircle(enabled=True, x=0.46, y=0.49, r=0.20),
+    "treblo_generate": CueCircle(enabled=True, x=0.50, y=0.76, r=0.13),
+    "treblo_advanced_tab": CueCircle(enabled=True, x=0.22, y=0.24, r=0.10),
+    "treblo_style_tags": CueCircle(enabled=True, x=0.30, y=0.37, r=0.16),
+    "treblo_sliders": CueCircle(enabled=True, x=0.50, y=0.68, r=0.28),
+    "claude_input": CueCircle(enabled=True, x=0.50, y=0.85, r=0.18),
+    "flow_generate": CueCircle(enabled=True, x=0.50, y=0.85, r=0.13),
+    "flow_reference": CueCircle(enabled=True, x=0.22, y=0.30, r=0.16),
+    "flow_video_generate": CueCircle(enabled=True, x=0.50, y=0.86, r=0.13),
+    "capcut_timeline": CueCircle(enabled=True, x=0.50, y=0.71, r=0.26),
+    "capcut_export": CueCircle(enabled=True, x=0.83, y=0.18, r=0.12),
+}
+
+
+def visual(name: str) -> str:
+    return VISUALS[name]
+
+
+def cue(name: str | None) -> CueCircle:
+    return CUES[name] if name else CueCircle()

@@ -36,5 +36,7 @@ export interface HealthStatus {
 
 export interface RenderResult {
   video_path: string;
+  srt_path: string | null;
   duration_seconds: number;
+  subtitles_burned: boolean;
 }

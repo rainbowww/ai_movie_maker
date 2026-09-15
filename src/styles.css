@@ -72,6 +72,17 @@ h1 {
   text-wrap: balance;
 }
 
+.project-switch {
+  margin-top: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
 .badge {
   padding: 8px 14px;
   border-radius: 999px;
