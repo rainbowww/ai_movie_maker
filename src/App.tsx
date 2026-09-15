@@ -56,13 +56,28 @@ export default function App() {
 
   async function generateAll() {
     if (!current) return;
-    setBusy('전체 장면 생성 중… (장면 수에 따라 수 분 소요될 수 있습니다)');
     setError(null);
     try {
       await saveCurrent(current);
-      await api.generateAll(current.id, false);
-      const fresh = await api.getProject(current.id);
-      setCurrent(fresh);
+      // The backend generates a few scenes per call so no single request
+      // outlives its timeout; keep going until it reports nothing left.
+      let guard = 0;
+      for (;;) {
+        const batch = await api.generateAll(current.id, false);
+        const done = batch.total_scenes - batch.remaining;
+        setBusy(`생성 중… ${done}/${batch.total_scenes} 장면`);
+        const fresh = await api.getProject(current.id);
+        setCurrent(fresh);
+        if (batch.remaining === 0 || batch.processed === 0) break;
+        if (batch.succeeded === 0) {
+          // Every scene in that batch failed the same way — retrying the
+          // rest would just repeat it. Surface the reason instead.
+          const first = batch.results[0] as { errors?: Record<string, string> } | undefined;
+          const reason = first?.errors ? Object.values(first.errors).join(' / ') : '알 수 없는 오류';
+          throw new Error(`생성 실패 — ${reason}`);
+        }
+        if (++guard > 200) break;
+      }
     } catch (e) {
       setError(String(e));
     } finally {

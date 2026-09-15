@@ -40,3 +40,11 @@ export interface RenderResult {
   duration_seconds: number;
   subtitles_burned: boolean;
 }
+
+export interface GenerateAllResult {
+  processed: number;
+  succeeded: number;
+  remaining: number;
+  total_scenes: number;
+  results: unknown[];
+}

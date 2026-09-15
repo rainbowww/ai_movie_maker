@@ -1,4 +1,4 @@
-import type { HealthStatus, Project, RenderResult, Scene } from './types';
+import type { GenerateAllResult, HealthStatus, Project, RenderResult, Scene } from './types';
 
 const BASE = '/api';
 
@@ -34,10 +34,10 @@ export const api = {
       method: 'POST',
     }).then((r) => asJson<Scene>(r)),
 
-  generateAll: (projectId: string, force = false) =>
-    fetch(`${BASE}/projects/${projectId}/generate-all?force=${force}`, {
+  generateAll: (projectId: string, force = false, limit = 4) =>
+    fetch(`${BASE}/projects/${projectId}/generate-all?force=${force}&limit=${limit}`, {
       method: 'POST',
-    }).then((r) => asJson<unknown[]>(r)),
+    }).then((r) => asJson<GenerateAllResult>(r)),
 
   renderProject: (projectId: string) =>
     fetch(`${BASE}/projects/${projectId}/render`, { method: 'POST' }).then((r) =>

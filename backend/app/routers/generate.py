@@ -72,12 +72,46 @@ def generate_scene_assets(project_id: str, scene_id: str, force: bool = False):
 
 
 @router.post("/{project_id}/generate-all")
-def generate_all(project_id: str, force: bool = False):
-    project = get_store().get(project_id)
+def generate_all(project_id: str, force: bool = False, limit: int = 4):
+    """Generate assets for up to `limit` scenes that still need them.
+
+    Deliberately chunked. A 35-scene project means 70 Gemini calls, which
+    takes far longer than an HTTP request should live — so this returns
+    after a few scenes and reports what is left. Each scene is saved as it
+    completes, so calling again resumes where this left off and nothing is
+    regenerated (or lost) in between. The frontend loops on `remaining`.
+    """
+    store = get_store()
+    project = store.get(project_id)
     if not project:
         raise HTTPException(404, "프로젝트를 찾을 수 없습니다.")
 
+    def needs_work(scene) -> bool:
+        if force:
+            return bool(scene.image_prompt.strip() or scene.caption.strip())
+        wants_image = bool(scene.image_prompt.strip()) and not scene.image_path
+        wants_audio = bool(scene.caption.strip()) and not scene.audio_path
+        return wants_image or wants_audio
+
+    pending = [s for s in sorted(project.scenes, key=lambda s: s.order) if needs_work(s)]
+    batch = pending[: max(1, limit)]
+
     results = []
-    for scene in sorted(project.scenes, key=lambda s: s.order):
-        results.append({"scene_id": scene.id, **_generate_for_scene(project_id, scene, force)})
-    return results
+    succeeded = 0
+    for scene in batch:
+        outcome = _generate_for_scene(project_id, scene, force)
+        if not outcome["errors"]:
+            succeeded += 1
+        results.append({"scene_id": scene.id, **outcome})
+
+    # `succeeded` is what the caller's loop must watch. `remaining` alone
+    # never reaches zero when every call fails the same way (a missing key,
+    # an exhausted quota), so a loop driven by it would hammer the API
+    # forever instead of surfacing the error.
+    return {
+        "processed": len(batch),
+        "succeeded": succeeded,
+        "remaining": max(0, len(pending) - succeeded),
+        "total_scenes": len(project.scenes),
+        "results": results,
+    }

@@ -34,11 +34,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.config import get_settings  # noqa: E402
 from app.deps import get_store  # noqa: E402
 
-# Narration-tuned espeak settings. "+m3" is a male variant; the default
-# voice sits too high and too fast to follow for ten minutes.
-DEFAULT_VOICE = "ko+m3"
+# Narration-tuned espeak settings. The stock voice sits too high and too
+# fast to follow for ten minutes, so each speaker gets a variant and a
+# pitch of its own — otherwise the two-host concept comes out in one voice.
+VOICE_BY_SPEAKER = {"m": "ko+m3", "f": "ko+f3"}
+PITCH_BY_SPEAKER = {"m": 30, "f": 62}
 DEFAULT_SPEED = 142  # words per minute
-DEFAULT_PITCH = 30  # 0-99, default 50
 DEFAULT_AMPLITUDE = 190
 DEFAULT_WORD_GAP = 2  # 10ms units, inserted between words
 
@@ -92,9 +93,9 @@ def synthesize(text: str, out_path: Path, *, voice: str, speed: int, pitch: int,
 def main() -> None:
     parser = argparse.ArgumentParser(description="espeak-ng으로 장면별 한국어 내레이션 생성")
     parser.add_argument("project_id")
-    parser.add_argument("--voice", default=DEFAULT_VOICE)
+    parser.add_argument("--voice-m", default=VOICE_BY_SPEAKER["m"])
+    parser.add_argument("--voice-f", default=VOICE_BY_SPEAKER["f"])
     parser.add_argument("--speed", type=int, default=DEFAULT_SPEED)
-    parser.add_argument("--pitch", type=int, default=DEFAULT_PITCH)
     parser.add_argument("--amplitude", type=int, default=DEFAULT_AMPLITUDE)
     parser.add_argument("--word-gap", type=int, default=DEFAULT_WORD_GAP)
     parser.add_argument("--raw", action="store_true", help="ffmpeg 마스터링 없이 원본 그대로")
@@ -117,9 +118,11 @@ def main() -> None:
             scene.audio_path = None  # 무대사 장면은 hold_seconds로 유지
             scene.audio_seconds = None
             continue
+        voice = args.voice_m if scene.speaker == "m" else args.voice_f
+        pitch = PITCH_BY_SPEAKER.get(scene.speaker, PITCH_BY_SPEAKER["m"])
         wav = synthesize(
             scene.caption, scenes_dir / f"{scene.id}.wav",
-            voice=args.voice, speed=args.speed, pitch=args.pitch,
+            voice=voice, speed=args.speed, pitch=pitch,
             amplitude=args.amplitude, word_gap=args.word_gap, master=not args.raw,
         )
         scene.audio_path = str(wav.relative_to(settings.storage_dir))
@@ -128,7 +131,8 @@ def main() -> None:
 
     store.save(project)
     mode = "원본" if args.raw else "마스터링 적용"
-    print(f"[local-tts] {project.id}: 대사 {made}개 음성 생성 완료 ({args.voice}, {args.speed}wpm, {mode})")
+    voices = f"남 {args.voice_m} / 여 {args.voice_f}"
+    print(f"[local-tts] {project.id}: 대사 {made}개 음성 생성 완료 ({voices}, {args.speed}wpm, {mode})")
     print("[local-tts] 이제 '영상 렌더링'을 실행하면 음성이 들어간 완성본이 나옵니다.")
 
 
