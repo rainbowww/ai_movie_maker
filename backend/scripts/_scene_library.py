@@ -147,15 +147,23 @@ VISUALS: dict[str, str] = {
 # app/services/mockups.py draw their controls at, on the 1280x720 content
 # canvas — so the circle lands on the control it points at, not near it.
 # If you move a control in mockups.py, move its cue here too.
+#
+# A cue points at one control. Past roughly r=0.2 it stops pointing and
+# starts enclosing half the screen, which tells the viewer nothing — so a
+# target that is really a region (a timeline, a text area) gets a circle on
+# its middle rather than a circle around the whole of it.
 CUES: dict[str, CueCircle] = {
     # treblo_simple: prompt box 110-1170 x 160-400; 생성 button at (640, 548)
-    "treblo_prompt_box": CueCircle(enabled=True, x=0.500, y=0.389, r=0.26),
+    "treblo_prompt_box": CueCircle(enabled=True, x=0.500, y=0.389, r=0.19),
     "treblo_generate": CueCircle(enabled=True, x=0.500, y=0.761, r=0.13),
     # treblo_advanced: "Advanced" tab at (210,100); chips row y 250-288;
-    # sliders at y 400 and 500 spanning x 110-1170
+    # sliders at y 400 and 500 spanning x 110-1170, knob at 68% of the track
     "treblo_advanced_tab": CueCircle(enabled=True, x=0.199, y=0.153, r=0.075),
     "treblo_style_tags": CueCircle(enabled=True, x=0.260, y=0.374, r=0.145),
-    "treblo_sliders": CueCircle(enabled=True, x=0.500, y=0.632, r=0.30),
+    # The Style Strength knob — the part you actually drag. This was r=0.30
+    # centred between the two sliders: a 384px radius on a 720px-tall canvas,
+    # so it ran off both edges and pointed at nothing in particular.
+    "treblo_sliders": CueCircle(enabled=True, x=0.648, y=0.563, r=0.10),
     # claude_chat: input bar 110-1070 x 580-640
     "claude_input": CueCircle(enabled=True, x=0.461, y=0.847, r=0.20),
     # flow_image: 생성 button at (640, 600)
@@ -164,7 +172,7 @@ CUES: dict[str, CueCircle] = {
     "flow_reference": CueCircle(enabled=True, x=0.137, y=0.292, r=0.095),
     "flow_video_generate": CueCircle(enabled=True, x=0.500, y=0.847, r=0.13),
     # capcut: clip lane y 470-546 across x 100-1170; 내보내기 at (1063, 88)
-    "capcut_timeline": CueCircle(enabled=True, x=0.500, y=0.706, r=0.30),
+    "capcut_timeline": CueCircle(enabled=True, x=0.500, y=0.706, r=0.14),
     "capcut_export": CueCircle(enabled=True, x=0.830, y=0.122, r=0.105),
 }
 
