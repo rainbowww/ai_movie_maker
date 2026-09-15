@@ -164,6 +164,10 @@ CUES: dict[str, CueCircle] = {
     # centred between the two sliders: a 384px radius on a 720px-tall canvas,
     # so it ran off both edges and pointed at nothing in particular.
     "treblo_sliders": CueCircle(enabled=True, x=0.648, y=0.563, r=0.10),
+    # The Advanced input field (110-1170 x 150-210) doubles as the lyrics box,
+    # and its own 생성 button sits at (640, 600) like Flow's.
+    "treblo_lyrics": CueCircle(enabled=True, x=0.500, y=0.250, r=0.12),
+    "treblo_advanced_generate": CueCircle(enabled=True, x=0.500, y=0.833, r=0.13),
     # claude_chat: input bar 110-1070 x 580-640
     "claude_input": CueCircle(enabled=True, x=0.461, y=0.847, r=0.20),
     # flow_image: 생성 button at (640, 600)
